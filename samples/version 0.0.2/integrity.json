@@ -1,0 +1,42 @@
+{
+    "modInfos": [
+        {
+            "fileName": "alternate-current-mc1.19-1.5.0.jar",
+            "fileHash": "7fb1085db908b529605da9bfcc96e4c1a5ebea480a98b49886eb74f82be95e13"
+        },
+        {
+            "fileName": "entityculling-fabric-1.6.2-mc1.19.4.jar",
+            "fileHash": "607039475b49ff9b4125c3f7c6f91e10f6b71ec2e071ef4651a604c7624dbc19"
+        },
+        {
+            "fileName": "fabric-api-0.79.0+1.19.4.jar",
+            "fileHash": "4da5cb3e29acb253e1a768a68a6993eaab39538a504b07e663fc1ea2681a5d81"
+        },
+        {
+            "fileName": "ferritecore-5.2.0-fabric.jar",
+            "fileHash": "5e77ce8d0bb9d62b06a9b3f5c0c4872493ca32b9fc3ba38a9c8a6c4d75af70fa"
+        },
+        {
+            "fileName": "logical_zoom-0.0.19.jar",
+            "fileHash": "bd5f422c59fd4d1a884938c70ba85fa3812e8836653617c2ad4c1d1e1f5d8964"
+        },
+        {
+            "fileName": "starlight-1.1.1+fabric.ae22326.jar",
+            "fileHash": "f2dd6682941326a833aaba868339b4ad9c93882fdef4447120ca0a8dea633a42"
+        }
+    ],
+    "resourcepacksInfos": [
+        {
+            "fileName": "Better Xray [ Vanilla ] 1.19",
+            "fileHash": "7b9c3bbcbd633a035ae302b02f60ba1aa1acfbbc5d1d77013da9ddeabd655171"
+        },
+        {
+            "fileName": "Better Xray [ Vanilla ] 1.19.zip",
+            "fileHash": "3fe59d70f5a2764a537e4e8e6406b436663e7696a20cc68bd707577f05136670"
+        },
+        {
+            "fileName": "Faithful 64x - Beta 8.zip",
+            "fileHash": "6e71d24b2e2191b0b9d11d685fbc71ba03ae93e7b1b37da8d0fe5be05aafbf00"
+        }
+    ]
+}
