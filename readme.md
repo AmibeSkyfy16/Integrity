@@ -15,6 +15,7 @@ the server once with the Integrity mod, it will then be created)
 concerning the hash of the files, be sure to use the SHA-256 algorithm and that the hash is in lower case
 
 check this video to understand how it works -> https://youtu.be/HDsvAae6k78
+also a sample file integrity.json can be found here https://github.com/AmibeSkyfy16/Integrity/blob/master/samples/version%200.0.2/integrity.json
 
 ### How does it work internally ?
 
