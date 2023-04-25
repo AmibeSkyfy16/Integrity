@@ -176,7 +176,8 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
 
                 if (Configs.INTEGRITY_CONFIG.serializableData.resourcepacksInfos equalsIgnoreOrder integrityConfig.resourcepacksInfos) {
                     RESOURCEPACKS_INTEGRITY[player.uuidAsString] = true
-                } else {
+                } else
+                {
                     // It is possible that a user has added one or more mods to the modpack.
                     val extraResourcepacks = mutableSetOf<ResourcepacksInfo>()
                     integrityConfig.resourcepacksInfos.forEach { resourcepacksInfo ->
