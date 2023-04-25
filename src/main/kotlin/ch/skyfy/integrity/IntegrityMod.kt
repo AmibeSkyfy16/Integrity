@@ -299,13 +299,13 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
 
                 val integrityConfig = IntegrityConfig()
                 val modsFolderPath = FabricLoader.getInstance().gameDir.resolve("mods")
-                modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
+                modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }?.forEach {
 //                    val hc = Files.asByteSource(it).hash(Hashing.sha256())
                     integrityConfig.modInfos.add(ModInfo(it.name, IOUtils.getHash(it)))
                 }
 
                 val resourcepacksFolderPath = FabricLoader.getInstance().gameDir.resolve("resourcepacks")
-                resourcepacksFolderPath.toFile().listFiles { dir -> true }.forEach {
+                resourcepacksFolderPath.toFile().listFiles { dir -> true }?.forEach {
 //                    if (it.isDirectory) {
 //                        integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, "IMPOSSIBLE HASH"))
 //                        return@forEach
