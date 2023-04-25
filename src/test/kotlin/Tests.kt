@@ -1,5 +1,6 @@
 import ch.skyfy.integrity.config.ModInfo
-import ch.skyfy.integrity.config.ModpackModsList
+import ch.skyfy.integrity.config.IntegrityConfig
+import ch.skyfy.integrity.config.ResourcepacksInfo
 import ch.skyfy.integrity.utils.ModUtils.equalsIgnoreOrder
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
@@ -52,14 +53,25 @@ class Tests {
     @Test
     fun generateModPackModList() {
         // I removed logical zoom from the list, lets see
-        val path = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\mods")
-        val modpackModsList = ModpackModsList()
-        path.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
+        val modsFolderPath = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\mods")
+        val resourcepacksFolderPath = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\resourcepacks")
+        val integrityConfig = IntegrityConfig()
+        modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
             val hc = Files.asByteSource(it).hash(Hashing.sha256())
-            modpackModsList.list.add(ModInfo(it.name, hc.toString()))
+            integrityConfig.modInfos.add(ModInfo(it.name, hc.toString()))
         }
+        resourcepacksFolderPath.toFile().listFiles { dir -> true }.forEach {
+            if(it.isDirectory){
+                integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, "IMPOSSIBLE HASH"))
+                return@forEach
+            }
+            val hc = Files.asByteSource(it).hash(Hashing.sha256())
+
+            integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, hc.toString()))
+        }
+
         val json = Json { prettyPrint = true }
-        json.encodeToStream(modpackModsList, path.resolve("modpack-mods-list.json").outputStream())
+        json.encodeToStream(integrityConfig, modsFolderPath.resolve("integrity.json").outputStream())
     }
 
     @Test

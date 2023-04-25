@@ -34,7 +34,7 @@ class ReloadFilesCmd : Command<ServerCommandSource> {
         private fun <S : ServerCommandSource> getConfigFiles(commandContext: CommandContext<S>, suggestionsBuilder: SuggestionsBuilder): CompletableFuture<Suggestions> {
             val list = mutableListOf<String>()
             list.add(Configs.CUSTOM_MODS_CONFIG.relativePath.fileName.toString())
-            list.add(Configs.MODPACK_MODS_LIST.relativePath.fileName.toString())
+            list.add(Configs.INTEGRITY_CONFIG.relativePath.fileName.toString())
             list.add("ALL")
             return CommandSource.suggestMatching(list, suggestionsBuilder)
         }
@@ -45,11 +45,11 @@ class ReloadFilesCmd : Command<ServerCommandSource> {
         val list = mutableListOf<Boolean>()
         if (fileName == "ALL") {
             list.add(ConfigManager.reloadConfig(Configs.CUSTOM_MODS_CONFIG))
-            list.add(ConfigManager.reloadConfig(Configs.MODPACK_MODS_LIST))
+            list.add(ConfigManager.reloadConfig(Configs.INTEGRITY_CONFIG))
         } else {
             when (fileName) {
                 "custom-mods-config.json" -> list.add(ConfigManager.reloadConfig(Configs.CUSTOM_MODS_CONFIG))
-                "modpack-mods-list.json" -> list.add(ConfigManager.reloadConfig(Configs.MODPACK_MODS_LIST))
+                "integrity.json" -> list.add(ConfigManager.reloadConfig(Configs.INTEGRITY_CONFIG))
             }
         }
 

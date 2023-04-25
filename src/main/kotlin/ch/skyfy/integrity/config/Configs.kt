@@ -2,6 +2,7 @@ package ch.skyfy.integrity.config
 
 import ch.skyfy.integrity.IntegrityMod
 import ch.skyfy.jsonconfiglib.ConfigData
+import org.checkerframework.checker.units.qual.C
 
 object Configs {
     @JvmField
@@ -11,5 +12,8 @@ object Configs {
     val CUSTOM_MODS_CONFIG = ConfigData.invokeSpecial<CustomModsConfig>(IntegrityMod.CONFIG_DIRECTORY.resolve("custom-mods-config.json"), true)
 
     @JvmField
-    val MODPACK_MODS_LIST = ConfigData.invokeSpecial<ModpackModsList>(IntegrityMod.CONFIG_DIRECTORY.resolve("modpack-mods-list.json"), true)
+    val CUSTOM_RESOURCEPACKS_CONFIG = ConfigData.invokeSpecial<CustomResourcepacksConfig>(IntegrityMod.CONFIG_DIRECTORY.resolve("custom-resourcepacks-config.json"), true)
+
+    @JvmField
+    val INTEGRITY_CONFIG = ConfigData.invokeSpecial<IntegrityConfig>(IntegrityMod.CONFIG_DIRECTORY.resolve("integrity.json"), true)
 }

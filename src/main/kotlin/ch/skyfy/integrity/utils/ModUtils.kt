@@ -11,4 +11,6 @@ object ModUtils {
      */
     infix fun <T> List<T>.equalsIgnoreOrder(other: List<T>) = this.size == other.size && this.toSet() == other.toSet()
 
+    infix fun <T> Set<T>.equalsIgnoreOrder(other: Set<T>) = this.size == other.size && this == other
+
 }

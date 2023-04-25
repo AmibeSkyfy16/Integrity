@@ -1,12 +1,11 @@
 package ch.skyfy.integrity
 
 import ch.skyfy.integrity.command.ReloadFilesCmd
-import ch.skyfy.integrity.config.Configs
-import ch.skyfy.integrity.config.ModInfo
-import ch.skyfy.integrity.config.ModpackModsList
+import ch.skyfy.integrity.config.*
 import ch.skyfy.integrity.utils.ModUtils
 import ch.skyfy.integrity.utils.ModUtils.equalsIgnoreOrder
 import ch.skyfy.jsonconfiglib.ConfigManager
+import ch.skyfy.jsonconfiglib.updateMap
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import kotlinx.coroutines.CoroutineScope
@@ -44,11 +43,12 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
         val CONFIG_DIRECTORY: Path = FabricLoader.getInstance().configDir.resolve(MOD_ID)
         val LOGGER: Logger = LogManager.getLogger(IntegrityMod::class.java)
 
-        val received: MutableSet<String> = mutableSetOf()
+        val INTEGRITY_DATA_RECEIVED: MutableSet<String> = mutableSetOf()
 
-        val MODPACK_MODS_LIST_CHECK = mutableMapOf<String, Boolean>()
+        val MODS_INTEGRITY = mutableMapOf<String, Boolean>()
+        val RESOURCEPACKS_INTEGRITY = mutableMapOf<String, Boolean>()
 
-        val MODPACK_MODS_LIST_PACKET_ID = Identifier(MOD_ID, "send_modpack_mods_list")
+        val INTEGRITY_PACKET_ID = Identifier(MOD_ID, "integrity")
     }
 
     init {
@@ -57,34 +57,38 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
         }
     }
 
+    @Suppress("UNUSED_ANONYMOUS_PARAMETER")
     override fun onInitialize() {
         registerCommands()
         registerCallbacks()
 
         if (FabricLoader.getInstance().environmentType == EnvType.SERVER) {
-            ServerPlayNetworking.registerGlobalReceiver(MODPACK_MODS_LIST_PACKET_ID) { server, player, handler, buf, responseSender ->
-                received.add(player.uuidAsString)
+            ServerPlayNetworking.registerGlobalReceiver(INTEGRITY_PACKET_ID) { server, player, handler, buf, responseSender ->
+                INTEGRITY_DATA_RECEIVED.add(player.uuidAsString)
 
-                val modpackModsList = Json.decodeFromString<ModpackModsList>(buf.readString())
+                val integrityConfig = Json.decodeFromString<IntegrityConfig>(buf.readString())
 
-                if (Configs.MODPACK_MODS_LIST.serializableData.list equalsIgnoreOrder modpackModsList.list) {
-                    MODPACK_MODS_LIST_CHECK[player.uuidAsString] = true
-                } else {
-
+                if (Configs.INTEGRITY_CONFIG.serializableData.modInfos equalsIgnoreOrder integrityConfig.modInfos) {
+                    MODS_INTEGRITY[player.uuidAsString] = true
+                } else
+                {
+                    // It is possible that a user has added one or more mods to the modpack.
                     val extraMods = mutableSetOf<ModInfo>()
-                    modpackModsList.list.forEach { modpackModList ->
-                        if (Configs.MODPACK_MODS_LIST.serializableData.list.none { it.fileName == modpackModList.fileName && it.fileHash == modpackModList.fileHash }) {
+                    integrityConfig.modInfos.forEach { modpackModList ->
+                        if (Configs.INTEGRITY_CONFIG.serializableData.modInfos.none { it.fileName == modpackModList.fileName && it.fileHash == modpackModList.fileHash }) {
                             extraMods.add(modpackModList.copy())
                         }
                     }
 
+                    // It is also possible that a user has removed one or more mods from the modpack.
                     val missingMods = mutableSetOf<ModInfo>()
-                    Configs.MODPACK_MODS_LIST.serializableData.list.forEach { modpackModList ->
-                        if (modpackModsList.list.none { it.fileName == modpackModList.fileName && it.fileHash == modpackModList.fileHash }) {
+                    Configs.INTEGRITY_CONFIG.serializableData.modInfos.forEach { modpackModList ->
+                        if (integrityConfig.modInfos.none { it.fileName == modpackModList.fileName && it.fileHash == modpackModList.fileHash }) {
                             missingMods.add(modpackModList.copy())
                         }
                     }
 
+                    // Displaying mods that have been added to the modpack
                     if (extraMods.size > 0) {
                         LOGGER.info("The following extra mods have been found for player ${player.name.string}")
                         extraMods.forEach {
@@ -92,13 +96,17 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                         }
                     }
 
+                    // Displaying mods that have been removed from the modpack
                     if (missingMods.size > 0) {
                         LOGGER.info("The following missing mods have been found for player ${player.name.string}")
-                        extraMods.forEach {
+                        missingMods.forEach {
                             LOGGER.info(it.toString())
                         }
                     }
 
+                    // You may agree that a particular user or everyone should add an extra mod to the modpack,
+                    // so you can add the mod in question to the "custom-mods-config.json"
+                    // file so that the player can still login with the extra mod
                     val allowedExtraMods = Configs.CUSTOM_MODS_CONFIG.serializableData.globalAllowedExtraMods
                     Configs.CUSTOM_MODS_CONFIG.serializableData.allowedExtraModsPerPlayer[ModUtils.getPlayerNameWithUUID(player)]?.let {
                         allowedExtraMods.addAll(it)
@@ -109,22 +117,25 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                     } else {
                         val extraUnauthorizedMods = mutableListOf<ModInfo>()
                         extraMods.forEach { modInfo ->
-                            if(allowedExtraMods.none { it.fileName == modInfo.fileName && it.fileHash == modInfo.fileHash }){
+                            if (allowedExtraMods.none { it.fileName == modInfo.fileName && it.fileHash == modInfo.fileHash }) {
                                 extraUnauthorizedMods.add(modInfo.copy())
                             }
                         }
-                        if(extraUnauthorizedMods.size > 0){
+                        if (extraUnauthorizedMods.size > 0) {
                             LOGGER.warn("The following unauthorized extra mods have been found for player ${player.name.string}")
                             extraUnauthorizedMods.forEach {
                                 LOGGER.warn(it.toString())
                             }
 
+                            MODS_INTEGRITY[player.uuidAsString] = false
                             player.networkHandler.disconnect(Text.literal("There are some mods that the server does not want you to have, but that you have anyway !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
-                            MODPACK_MODS_LIST_CHECK[player.uuidAsString] = false
                             return@registerGlobalReceiver
                         }
                     }
 
+                    // You may agree that a particular user or everyone should remove a mod to the modpack,
+                    // so you can add the mod in question to the "custom-mods-config.json"
+                    // file so that the player can still login with the missing mod
                     val allowedMissingMods = Configs.CUSTOM_MODS_CONFIG.serializableData.globalAllowedMissingMods
                     Configs.CUSTOM_MODS_CONFIG.serializableData.allowedMissingModsPerPlayer[ModUtils.getPlayerNameWithUUID(player)]?.let {
                         allowedExtraMods.addAll(it)
@@ -135,35 +146,150 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                     } else {
                         val missingUnauthorizedMods = mutableListOf<ModInfo>()
                         missingMods.forEach { modInfo ->
-                            if(allowedExtraMods.none { it.fileName == modInfo.fileName && it.fileHash == modInfo.fileHash }){
+                            if (allowedExtraMods.none { it.fileName == modInfo.fileName && it.fileHash == modInfo.fileHash }) {
                                 missingUnauthorizedMods.add(modInfo.copy())
                             }
                         }
-                        if(missingUnauthorizedMods.size > 0){
+                        if (missingUnauthorizedMods.size > 0) {
                             LOGGER.warn("The following unauthorized missing mods have been found for player ${player.name.string}")
                             missingUnauthorizedMods.forEach {
                                 LOGGER.warn(it.toString())
                             }
 
+                            MODS_INTEGRITY[player.uuidAsString] = false
                             player.networkHandler.disconnect(Text.literal("There are mods that the server wants you to have, but you don't !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
-                            MODPACK_MODS_LIST_CHECK[player.uuidAsString] = false
                             return@registerGlobalReceiver
                         }
                     }
 
-                    MODPACK_MODS_LIST_CHECK[player.uuidAsString] = true
+                    MODS_INTEGRITY[player.uuidAsString] = true
                 }
 
-                println("welcome on the server !")
+                LOGGER.info("modpack of player ${player.name.string} has integrity for mods. Now checking resourcepacks")
 
+
+                if (!Configs.INTEGRITY_CONFIG.serializableData.allowResourcepacksUnzipped && integrityConfig.resourcepacksInfos.any { it.fileHash == "IMPOSSIBLE HASH" }) {
+                    RESOURCEPACKS_INTEGRITY[player.uuidAsString] = false
+                    player.networkHandler.disconnect(Text.literal("There are some resourcepacks that the server does not want you to have, but that you have anyway ! (Server doesn't like unzipped resourcepacks !)").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                    return@registerGlobalReceiver
+                }
+
+                if (Configs.INTEGRITY_CONFIG.serializableData.resourcepacksInfos equalsIgnoreOrder integrityConfig.resourcepacksInfos) {
+                    RESOURCEPACKS_INTEGRITY[player.uuidAsString] = true
+                } else {
+                    // It is possible that a user has added one or more mods to the modpack.
+                    val extraResourcepacks = mutableSetOf<ResourcepacksInfo>()
+                    integrityConfig.resourcepacksInfos.forEach { resourcepacksInfo ->
+                        if (Configs.INTEGRITY_CONFIG.serializableData.resourcepacksInfos.none { it.fileName == resourcepacksInfo.fileName && it.fileHash == resourcepacksInfo.fileHash }) {
+                            extraResourcepacks.add(resourcepacksInfo.copy())
+                        }
+                    }
+
+                    // It is also possible that a user has removed one or more mods from the modpack.
+                    val missingResourcepacks = mutableSetOf<ResourcepacksInfo>()
+                    Configs.INTEGRITY_CONFIG.serializableData.resourcepacksInfos.forEach { resourcepacksInfo ->
+                        if (integrityConfig.resourcepacksInfos.none { it.fileName == resourcepacksInfo.fileName && it.fileHash == resourcepacksInfo.fileHash }) {
+                            missingResourcepacks.add(resourcepacksInfo.copy())
+                        }
+                    }
+
+                    // Displaying mods that have been added to the modpack
+                    if (extraResourcepacks.size > 0) {
+                        LOGGER.info("The following extra resourcepacks have been found for player ${player.name.string}")
+                        extraResourcepacks.forEach {
+                            LOGGER.info(it.toString())
+                        }
+                    }
+
+                    // Displaying mods that have been removed from the modpack
+                    if (missingResourcepacks.size > 0) {
+                        LOGGER.info("The following missing resourcepacks have been found for player ${player.name.string}")
+                        missingResourcepacks.forEach {
+                            LOGGER.info(it.toString())
+                        }
+                    }
+
+                    // You may agree that a particular user or everyone should add an extra mod to the modpack,
+                    // so you can add the mod in question to the "custom-mods-config.json"
+                    // file so that the player can still login with the extra mod
+                    val allowedExtraResourcepacks = Configs.CUSTOM_RESOURCEPACKS_CONFIG.serializableData.globalAllowedExtraResourcepacks
+                    Configs.CUSTOM_RESOURCEPACKS_CONFIG.serializableData.allowedExtraResourcepacksPerPlayer[ModUtils.getPlayerNameWithUUID(player)]?.let {
+                        allowedExtraResourcepacks.addAll(it)
+                    }
+
+                    if (allowedExtraResourcepacks equalsIgnoreOrder extraResourcepacks.toList()) {
+                        LOGGER.info("All the extra resourcepacks are allowed for player ${player.name.string}")
+                    } else {
+                        val extraUnauthorizedResourcepacks = mutableListOf<ResourcepacksInfo>()
+                        extraResourcepacks.forEach { resourcepacksInfo ->
+                            if (allowedExtraResourcepacks.none { it.fileName == resourcepacksInfo.fileName && it.fileHash == resourcepacksInfo.fileHash }) {
+                                extraUnauthorizedResourcepacks.add(resourcepacksInfo.copy())
+                            }
+                        }
+                        if (extraUnauthorizedResourcepacks.size > 0) {
+                            LOGGER.warn("The following unauthorized extra resourcepacks have been found for player ${player.name.string}")
+                            extraUnauthorizedResourcepacks.forEach {
+                                LOGGER.warn(it.toString())
+                            }
+
+                            RESOURCEPACKS_INTEGRITY[player.uuidAsString] = false
+                            player.networkHandler.disconnect(Text.literal("There are some resourcepacks that the server does not want you to have, but that you have anyway !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                            return@registerGlobalReceiver
+                        }
+                    }
+
+                    // You may agree that a particular user or everyone should remove a mod to the modpack,
+                    // so you can add the mod in question to the "custom-mods-config.json"
+                    // file so that the player can still login with the missing mod
+                    val allowedMissingResourcepacks = Configs.CUSTOM_RESOURCEPACKS_CONFIG.serializableData.globalAllowedMissingResourcepacks
+                    Configs.CUSTOM_RESOURCEPACKS_CONFIG.serializableData.allowedMissingResourcepacksPerPlayer[ModUtils.getPlayerNameWithUUID(player)]?.let {
+                        allowedExtraResourcepacks.addAll(it)
+                    }
+
+                    if (allowedMissingResourcepacks equalsIgnoreOrder missingResourcepacks.toList()) {
+                        LOGGER.info("All the missing mods are allowed for player ${player.name.string}")
+                    } else {
+                        val missingUnauthorizedResourcepacks = mutableListOf<ResourcepacksInfo>()
+                        missingResourcepacks.forEach { resourcepacksInfo ->
+                            if (allowedExtraResourcepacks.none { it.fileName == resourcepacksInfo.fileName && it.fileHash == resourcepacksInfo.fileHash }) {
+                                missingUnauthorizedResourcepacks.add(resourcepacksInfo.copy())
+                            }
+                        }
+                        if (missingUnauthorizedResourcepacks.size > 0) {
+                            LOGGER.warn("The following unauthorized missing resourcepacks have been found for player ${player.name.string}")
+                            missingUnauthorizedResourcepacks.forEach {
+                                LOGGER.warn(it.toString())
+                            }
+
+                            RESOURCEPACKS_INTEGRITY[player.uuidAsString] = false
+                            player.networkHandler.disconnect(Text.literal("There are resourcepacks that the server wants you to have, but you don't !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                            return@registerGlobalReceiver
+                        }
+                    }
+
+                    RESOURCEPACKS_INTEGRITY[player.uuidAsString] = true
+                }
+
+                LOGGER.info("modpack of player ${player.name.string} has integrity for resourcepacks !")
             }
 
             ServerPlayConnectionEvents.JOIN.register { handler, sender, client ->
+                val playerNameWithUUID = ModUtils.getPlayerNameWithUUID(handler.player)
+
+                // In order to make it easier for the user to configure his files, we add the player's ID beforehand
+                Configs.CUSTOM_MODS_CONFIG.updateMap(CustomModsConfig::allowedExtraModsPerPlayer) {
+                    if (!it.contains(playerNameWithUUID)) it[playerNameWithUUID] = mutableListOf()
+                }
+                Configs.CUSTOM_MODS_CONFIG.updateMap(CustomModsConfig::allowedMissingModsPerPlayer) {
+                    if (!it.contains(playerNameWithUUID)) it[playerNameWithUUID] = mutableListOf()
+                }
+
+                // If after 25 seconds, the server didn't receive the integrity data, the player will be disconnected
                 launch {
-                    delay(20.seconds)
-                    if (!received.contains(handler.player.uuidAsString)) {
-                        println("The server did not receive your mod list. player ${handler.player.name.string} will be kick")
-                        handler.player.networkHandler.disconnect(Text.literal("Mod Integrity is not installed !"))
+                    delay(25.seconds)
+                    if (!INTEGRITY_DATA_RECEIVED.contains(handler.player.uuidAsString)) {
+                        LOGGER.info("NO INTEGRITY DATA RECEIVED FOR PLAYER ${handler.player.name.string}")
+                        handler.player.networkHandler.disconnect(Text.literal("Mod Integrity is probably not installed cause no integrity data received !"))
                     }
                 }
             }
@@ -172,16 +298,28 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
         if (FabricLoader.getInstance().environmentType == EnvType.CLIENT) {
             ClientPlayConnectionEvents.JOIN.register { handler, sender, client ->
 
-                val modpackModsList = ModpackModsList()
+                val integrityConfig = IntegrityConfig()
                 val modsFolderPath = FabricLoader.getInstance().gameDir.resolve("mods")
                 modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
                     val hc = Files.asByteSource(it).hash(Hashing.sha256())
-                    modpackModsList.list.add(ModInfo(it.name, hc.toString()))
+                    integrityConfig.modInfos.add(ModInfo(it.name, hc.toString()))
                 }
-                val pbb = PacketByteBufs.create()
-                pbb.writeString(Json.encodeToString(modpackModsList))
 
-                ClientPlayNetworking.send(MODPACK_MODS_LIST_PACKET_ID, pbb)
+                val resourcepacksFolderPath = FabricLoader.getInstance().gameDir.resolve("resourcepacks")
+                resourcepacksFolderPath.toFile().listFiles { dir -> true }.forEach {
+                    if (it.isDirectory) {
+                        integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, "IMPOSSIBLE HASH"))
+                        return@forEach
+                    }
+                    val hc = Files.asByteSource(it).hash(Hashing.sha256())
+                    integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, hc.toString()))
+                }
+
+
+                val pbb = PacketByteBufs.create()
+                pbb.writeString(Json.encodeToString(integrityConfig))
+
+                ClientPlayNetworking.send(INTEGRITY_PACKET_ID, pbb)
             }
         }
     }

@@ -4,4 +4,7 @@ import ch.skyfy.jsonconfiglib.Validatable
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ModpackModsList(val list: MutableList<ModInfo> = mutableListOf()) : Validatable {}
+data class ResourcepacksInfo(
+    val fileName: String,
+    val fileHash: String
+) : Validatable
