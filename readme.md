@@ -12,6 +12,8 @@ sent match the list. If it does, the player will not be disconnected.
 
 IMPORTANT: the fileHash has to use the SHA-256 algorithm
 
+check this video to understand how it works -> https://youtu.be/HDsvAae6k78
+
 ___
 
 <p align="center" style="font-size:200%">
