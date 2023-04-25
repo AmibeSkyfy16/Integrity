@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "integrity",
+  "version": "${version}",
+  "name": "Integrity",
+  "description": "Modpack Integrity Checker, check if the mods present on the modpack match to a file called modpack-mods-list.json (server side)",
+  "authors": [
+    "Skyfy16"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/integrity/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "ch.skyfy.integrity.IntegrityMod"
+      }
+    ]
+  },
+  "mixins": [
+    "integrity.mixin.json"
+  ],
+  "depends": {
+    "java": ">=17",
+    "minecraft": "1.19.4",
+    "fabricloader": ">=0.14.19",
+    "fabric": "*",
+    "fabric-language-kotlin": ">=1.9.3+kotlin.1.8.20"
+  }
+}
