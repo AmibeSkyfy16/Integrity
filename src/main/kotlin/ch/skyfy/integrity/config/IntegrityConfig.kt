@@ -8,5 +8,5 @@ data class IntegrityConfig(
     val modInfos: MutableSet<ModInfo> = mutableSetOf(),
     val resourcepacksInfos: MutableSet<ResourcepacksInfo> = mutableSetOf(),
 
-    val allowResourcepacksUnzipped: Boolean = false
+    val allowFileThatProducedIOException: Boolean = false
 ) : Validatable {}

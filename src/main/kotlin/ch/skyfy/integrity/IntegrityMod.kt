@@ -2,12 +2,11 @@ package ch.skyfy.integrity
 
 import ch.skyfy.integrity.command.ReloadFilesCmd
 import ch.skyfy.integrity.config.*
+import ch.skyfy.integrity.utils.IOUtils
 import ch.skyfy.integrity.utils.ModUtils
 import ch.skyfy.integrity.utils.ModUtils.equalsIgnoreOrder
 import ch.skyfy.jsonconfiglib.ConfigManager
 import ch.skyfy.jsonconfiglib.updateMap
-import com.google.common.hash.Hashing
-import com.google.common.io.Files
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -126,9 +125,8 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                             extraUnauthorizedMods.forEach {
                                 LOGGER.warn(it.toString())
                             }
-
                             MODS_INTEGRITY[player.uuidAsString] = false
-                            player.networkHandler.disconnect(Text.literal("There are some mods that the server does not want you to have, but that you have anyway !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                            player.networkHandler.disconnect(Text.literal("There are some mods that the server does not want you to have, but that you have anyway ! (${extraUnauthorizedMods.joinToString(separator = ";")})").setStyle(Style.EMPTY.withColor(Formatting.RED)))
                             return@registerGlobalReceiver
                         }
                     }
@@ -155,9 +153,8 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                             missingUnauthorizedMods.forEach {
                                 LOGGER.warn(it.toString())
                             }
-
                             MODS_INTEGRITY[player.uuidAsString] = false
-                            player.networkHandler.disconnect(Text.literal("There are mods that the server wants you to have, but you don't !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                            player.networkHandler.disconnect(Text.literal("There are mods that the server wants you to have, but you don't ! (${missingUnauthorizedMods.joinToString(separator = ";")})").setStyle(Style.EMPTY.withColor(Formatting.RED)))
                             return@registerGlobalReceiver
                         }
                     }
@@ -168,9 +165,10 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                 LOGGER.info("modpack of player ${player.name.string} has integrity for mods. Now checking resourcepacks")
 
 
-                if (!Configs.INTEGRITY_CONFIG.serializableData.allowResourcepacksUnzipped && integrityConfig.resourcepacksInfos.any { it.fileHash == "IMPOSSIBLE HASH" }) {
+                if (!Configs.INTEGRITY_CONFIG.serializableData.allowFileThatProducedIOException && integrityConfig.resourcepacksInfos.any { it.fileHash == "IOException" }) {
                     RESOURCEPACKS_INTEGRITY[player.uuidAsString] = false
-                    player.networkHandler.disconnect(Text.literal("There are some resourcepacks that the server does not want you to have, but that you have anyway ! (Server doesn't like unzipped resourcepacks !)").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                    val str = integrityConfig.resourcepacksInfos.filter { it.fileHash == "IOException" }.joinToString(separator = ";")
+                    player.networkHandler.disconnect(Text.literal("There are some resourcepacks that produce an IOException ! ($str)").setStyle(Style.EMPTY.withColor(Formatting.RED)))
                     return@registerGlobalReceiver
                 }
 
@@ -234,7 +232,7 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                             }
 
                             RESOURCEPACKS_INTEGRITY[player.uuidAsString] = false
-                            player.networkHandler.disconnect(Text.literal("There are some resourcepacks that the server does not want you to have, but that you have anyway !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                            player.networkHandler.disconnect(Text.literal("There are some resourcepacks that the server does not want you to have, but that you have anyway ! (${extraUnauthorizedResourcepacks.joinToString(separator = ";")})").setStyle(Style.EMPTY.withColor(Formatting.RED)))
                             return@registerGlobalReceiver
                         }
                     }
@@ -263,7 +261,7 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                             }
 
                             RESOURCEPACKS_INTEGRITY[player.uuidAsString] = false
-                            player.networkHandler.disconnect(Text.literal("There are resourcepacks that the server wants you to have, but you don't !").setStyle(Style.EMPTY.withColor(Formatting.RED)))
+                            player.networkHandler.disconnect(Text.literal("There are resourcepacks that the server wants you to have, but you don't ! (${missingUnauthorizedResourcepacks.joinToString(separator = ";")})").setStyle(Style.EMPTY.withColor(Formatting.RED)))
                             return@registerGlobalReceiver
                         }
                     }
@@ -302,18 +300,18 @@ class IntegrityMod(override val coroutineContext: CoroutineContext = Dispatchers
                 val integrityConfig = IntegrityConfig()
                 val modsFolderPath = FabricLoader.getInstance().gameDir.resolve("mods")
                 modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
-                    val hc = Files.asByteSource(it).hash(Hashing.sha256())
-                    integrityConfig.modInfos.add(ModInfo(it.name, hc.toString()))
+//                    val hc = Files.asByteSource(it).hash(Hashing.sha256())
+                    integrityConfig.modInfos.add(ModInfo(it.name, IOUtils.getHash(it)))
                 }
 
                 val resourcepacksFolderPath = FabricLoader.getInstance().gameDir.resolve("resourcepacks")
                 resourcepacksFolderPath.toFile().listFiles { dir -> true }.forEach {
-                    if (it.isDirectory) {
-                        integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, "IMPOSSIBLE HASH"))
-                        return@forEach
-                    }
-                    val hc = Files.asByteSource(it).hash(Hashing.sha256())
-                    integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, hc.toString()))
+//                    if (it.isDirectory) {
+//                        integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, "IMPOSSIBLE HASH"))
+//                        return@forEach
+//                    }
+//                    val hc = Files.asByteSource(it).hash(Hashing.sha256())
+                    integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, IOUtils.getHash(it)))
                 }
 
 

@@ -1,15 +1,15 @@
-import ch.skyfy.integrity.config.ModInfo
 import ch.skyfy.integrity.config.IntegrityConfig
+import ch.skyfy.integrity.config.ModInfo
 import ch.skyfy.integrity.config.ResourcepacksInfo
-import ch.skyfy.integrity.utils.ModUtils.equalsIgnoreOrder
-import com.google.common.hash.Hashing
-import com.google.common.io.Files
+import ch.skyfy.integrity.utils.IOUtils
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Paths
+import java.util.*
 import kotlin.io.path.outputStream
 import kotlin.test.Test
+
 
 class Tests {
 
@@ -49,25 +49,23 @@ class Tests {
     }
 
 
+    /**
+     * This fun will generate an integrity.json file based on the mods/resourcepacks folder you give
+     */
     @OptIn(ExperimentalSerializationApi::class)
     @Test
-    fun generateModPackModList() {
-        // I removed logical zoom from the list, lets see
+    fun generateIntegrityDotJson() {
         val modsFolderPath = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\mods")
         val resourcepacksFolderPath = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\resourcepacks")
-        val integrityConfig = IntegrityConfig()
-        modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
-            val hc = Files.asByteSource(it).hash(Hashing.sha256())
-            integrityConfig.modInfos.add(ModInfo(it.name, hc.toString()))
-        }
-        resourcepacksFolderPath.toFile().listFiles { dir -> true }.forEach {
-            if(it.isDirectory){
-                integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, "IMPOSSIBLE HASH"))
-                return@forEach
-            }
-            val hc = Files.asByteSource(it).hash(Hashing.sha256())
 
-            integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, hc.toString()))
+
+        val integrityConfig = IntegrityConfig()
+
+        modsFolderPath.toFile().listFiles { dir -> dir.extension == "jar" }.forEach {
+            integrityConfig.modInfos.add(ModInfo(it.name, IOUtils.getHash(it)))
+        }
+        resourcepacksFolderPath.toFile().listFiles().forEach {
+            integrityConfig.resourcepacksInfos.add(ResourcepacksInfo(it.name, IOUtils.getHash(it)))
         }
 
         val json = Json { prettyPrint = true }
@@ -75,25 +73,11 @@ class Tests {
     }
 
     @Test
-    fun t() {
-        val list = mutableListOf<ModInfo>()
-        list.add(ModInfo("1.jar", "1234"))
-        list.add(ModInfo("2.jar", "12345"))
-
-        val list2 = mutableListOf<ModInfo>()
-        list2.add(ModInfo("2.jar", "12345"))
-        list2.add(ModInfo("1.jar", "1234"))
-        list2.add(ModInfo("3.jar", "12334"))
-
-        if(list.toSet() == list2.toSet()){
-            println("==")
-        }
-
-        if(list equalsIgnoreOrder list2){
-            println("euqla")
-        }
-
-
+    fun getHashForAFile(){
+        val stringPath = "C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\resourcepacks\\Better Xray [ Vanilla ] 1.19"
+//        val stringPath = "C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\mods\\ferritecore-5.2.0-fabric.jar"
+        val path = Paths.get(stringPath)
+        println(IOUtils.getHash(path.toFile()))
     }
 
 }
