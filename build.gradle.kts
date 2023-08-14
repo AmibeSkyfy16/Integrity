@@ -128,12 +128,12 @@ tasks {
     }
 
     java {
-        toolchain {
-//            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
-//            vendor.set(JvmVendorSpec.BELLSOFT)
-        }
         withSourcesJar()
         withJavadocJar()
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
+            vendor.set(JvmVendorSpec.BELLSOFT)
+        }
     }
 
     named<Wrapper>("wrapper") {
@@ -165,6 +165,7 @@ tasks {
         exclude("org/slf4j/**")
 
         relocate("ch.skyfy.jsonconfiglib", "ch.skyfy.integrity.libs.jsonconfiglib")
+        relocate("mu", "ch.skyfy.integrity.libs.mu")
     }
 
     named<RemapJarTask>("remapJar"){
