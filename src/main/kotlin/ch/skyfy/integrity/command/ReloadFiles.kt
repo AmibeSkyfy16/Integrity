@@ -54,10 +54,10 @@ class ReloadFilesCmd : Command<ServerCommandSource> {
         }
 
         if (list.contains(false)) {
-            context.source.sendFeedback(Text.literal("Configuration could not be reloaded"), false)
+            context.source.sendFeedback({Text.literal("Configuration could not be reloaded")}, false)
             IntegrityMod.LOGGER.warn("Configuration could not be reloaded")
         } else {
-            context.source.sendFeedback(Text.literal("The configuration was successfully reloaded"), false)
+            context.source.sendFeedback({Text.literal("The configuration was successfully reloaded")}, false)
             IntegrityMod.LOGGER.info("The configuration was successfully reloaded")
         }
 

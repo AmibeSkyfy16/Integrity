@@ -2,7 +2,6 @@ package ch.skyfy.integrity.config
 
 import ch.skyfy.integrity.IntegrityMod
 import ch.skyfy.jsonconfiglib.ConfigData
-import org.checkerframework.checker.units.qual.C
 
 object Configs {
     @JvmField

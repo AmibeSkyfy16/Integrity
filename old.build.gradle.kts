@@ -1,16 +1,11 @@
 @file:Suppress("GradlePackageVersionRange")
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import net.fabricmc.loom.task.RemapJarTask
-
-
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
     id("fabric-loom") version "1.3-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.8.22"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     idea
 }
 
@@ -37,18 +32,15 @@ dependencies {
 //    modImplementation("net.silkmc:silk-compose:1.0.4")
 
 
-//    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")!!)
-    shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")
+    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")!!)
 //    transitiveInclude(implementation("com.google.guava:guava:31.1-jre")!!)
 //    transitiveInclude(implementation("com.github.goxr3plus:FX-BorderlessScene:4.4.0")!!)
 
-//    handleIncludes(project, transitiveInclude)
+    handleIncludes(project, transitiveInclude)
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
     testImplementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")
 }
-
-configurations.implementation.get().extendsFrom(configurations.shadow.get())
 
 tasks {
 
@@ -149,27 +141,6 @@ tasks {
 
     named<Jar>("jar") {
         from("LICENSE") { rename { "${it}_${base.archivesName.get()}" } }
-    }
-
-    named<ShadowJar>("shadowJar"){
-        from("LICENSE")
-
-        archiveFileName.set("${project.properties["archives_name"]}-${project.properties["mod_version"]}-shadowed.jar")
-
-        configurations = listOf(project.configurations.shadow.get())
-
-        exclude("kotlin/**", "kotlinx/**", "javax/**", "META-INF")
-        exclude("org/checkerframework/**", "org/intellij/**", "org/jetbrains/annotations/**")
-        exclude("com/google/gson/**")
-        exclude("net/kyori/**")
-        exclude("org/slf4j/**")
-
-        relocate("ch.skyfy.jsonconfiglib", "ch.skyfy.integrity.libs.jsonconfiglib")
-    }
-
-    named<RemapJarTask>("remapJar"){
-        dependsOn(shadowJar.get())
-        inputFile.set(shadowJar.get().archiveFile)
     }
 
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
