@@ -1,0 +1,119 @@
+{
+    "modInfos": [
+        {
+            "fileName": "alternate-current-mc1.20-1.7.0.jar",
+            "fileHash": "06303e54ba9b1cc5c67695597a8f5b8a3eaf8a1dba2f307edc4ab20300bdd868"
+        },
+        {
+            "fileName": "BBOutlineReloaded-2.6-1.20.1-fabric.jar",
+            "fileHash": "d6548681c17eb78ca1c5bd298cc7543c9644f4b62d36f113729823e7214310a2"
+        },
+        {
+            "fileName": "BetterAdvancements-Fabric-1.20.1-0.3.2.161.jar",
+            "fileHash": "53a3867a8fa1da1ea8600ba3c21a610f4a8ae12b06634017988694a85517c765"
+        },
+        {
+            "fileName": "BetterF3-7.0.1-Fabric-1.20.1.jar",
+            "fileHash": "2029fb0d0344c04ffd906be0e3317e43a47bc34fc6e386f9faa4ca28231651e2"
+        },
+        {
+            "fileName": "Bookshelf-Fabric-1.20.1-20.0.2.jar",
+            "fileHash": "27ab2f7126ebef5ca3396d19c2f50b4abfe37517bdec4186123dfe77c30a2216"
+        },
+        {
+            "fileName": "Clumps-fabric-1.20.1-12.0.0.3.jar",
+            "fileHash": "ebe1d60192183f120d6d572b6ebe6562892a2783bc5a7f28a599497e10523b7e"
+        },
+        {
+            "fileName": "custom-crosshair-mod-v1.5.2-fabric-mc1.20.1.jar",
+            "fileHash": "68a9c6dfbd2d676e8a7120cc967cf9490cdd1010fa34884d6aae971141711b41"
+        },
+        {
+            "fileName": "Debugify-1.20.1+2.0.jar",
+            "fileHash": "c61b78a7609c989578e98837047bc026d32654a0ad55f9118bb35f295536949d"
+        },
+        {
+            "fileName": "entityculling-fabric-1.6.2-mc1.20.jar",
+            "fileHash": "53c120668de1d48e5cae23670ddd8e3282c7579d11d8e18d9d8d32000f31aa94"
+        },
+        {
+            "fileName": "exordium-fabric-1.1.3.1-mc1.20.1.jar",
+            "fileHash": "465e1c04e7e12268545c465d6b9bfe3229fbbfcf4c3a267cde2e5f75f124f8ad"
+        },
+        {
+            "fileName": "fabric-api-0.86.1+1.20.1.jar",
+            "fileHash": "9f66387ebfec1cc2b045d51f227760e43a61b93d4610b71fd6a3ebdaa8b9b76f"
+        },
+        {
+            "fileName": "fabric-language-kotlin-1.10.8+kotlin.1.9.0.jar",
+            "fileHash": "81d7e722978c871ce7f112af64c8434848977896b1ddaca9eed7c3e786dad7e7"
+        },
+        {
+            "fileName": "ferritecore-6.0.0-fabric.jar",
+            "fileHash": "efbf1d4df2a89621bb8d7090e04966795047db16513fef673a529a07dff66afe"
+        },
+        {
+            "fileName": "freecam-fabric-modrinth-1.2.1+1.20.jar",
+            "fileHash": "e0b0c999809530038a982ded82569151630e4fc065cb06c10a3da1a54dee6a7e"
+        },
+        {
+            "fileName": "fullstackwatchdog-1.0.1+1.19.2-fabric.jar",
+            "fileHash": "72dfbacdc188eca37ab7e003124ac2c2b475d571cccef8047a9c488836416bbb"
+        },
+        {
+            "fileName": "Gamma-Utils-1.7.16-mc1.20.1.jar",
+            "fileHash": "b175500f34b5cb585c6adeda24934b2b6b1ea7c690e41f4c117561d8d0f7ea11"
+        },
+        {
+            "fileName": "ImmediatelyFast-1.1.26+1.20.1.jar",
+            "fileHash": "0b7029949781aa5ed315957d51cb6f2aef5e580b495273bfc9bc743302d503cb"
+        },
+        {
+            "fileName": "InvMove-1.20-0.8.4-Fabric.jar",
+            "fileHash": "391535a629cd2f114dbebc142d923b065357c62caa5e946c326c3a3a8d7730e2"
+        },
+        {
+            "fileName": "iris-mc1.20.1-1.6.5.jar",
+            "fileHash": "076cb4a1dfab93f4073278ab0de91266fff9f78122f64b82f46fe990f4e0ed5e"
+        },
+        {
+            "fileName": "Jade-1.20-fabric-11.4.3.jar",
+            "fileHash": "0b4b2c98001fee05b3f84dcc8c7d467b526ff0660b6c9f4f63032beafd31e293"
+        },
+        {
+            "fileName": "krypton-0.2.3.jar",
+            "fileHash": "69ad1810206ce12181b1b083640f044e7e250781c36c96c655eac36209057698"
+        },
+        {
+            "fileName": "litematica-fabric-1.20.1-0.15.3.jar",
+            "fileHash": "e1dc0bf57292f1ca808e79d65f59c1253d56191949a071dbe102eddbd6857039"
+        },
+        {
+            "fileName": "lithium-fabric-mc1.20.1-0.11.2.jar",
+            "fileHash": "a0c595355d680e0c87bf8eaebafedff6900d4e771a8d6894ee6d2d4374de8df9"
+        },
+        {
+            "fileName": "logical_zoom-0.0.20.jar",
+            "fileHash": "b7eab522aa00ea9657ba035274397fa42632cf2d591d4f250e2ffd7cc20752ae"
+        },
+        {
+            "fileName": "malilib-fabric-1.20.1-0.16.1.jar",
+            "fileHash": "afc02aa4652128e8df22ea95a4ae7e933b32fc4c697e5101cd5d898b7fdc4bc8"
+        },
+        {
+            "fileName": "memoryleakfix-fabric-1.17+-1.1.1.jar",
+            "fileHash": "d3295b2a0c593dd69bca8910fd9ad954274623f9d09be1a351ff769ec797e823"
+        },
+        {
+            "fileName": "minihud-fabric-1.20.1-0.27.0.jar",
+            "fileHash": "d3490931c7d827d7ba8211bb0dc55c20b1d30d6e98796cab405db6fa13138f60"
+        },
+        {
+            "fileName": "MixinConflictHelper-1.2.0.jar",
+            "fileHash": "4d6337d2220d6c26581352f25a2b4eebc0717bd3731fbcd1865e2277dee604ba"
+        }
+    ],
+    "resourcepacksInfos": [
+    ],
+    "allowFileThatProducedIOException": false
+}

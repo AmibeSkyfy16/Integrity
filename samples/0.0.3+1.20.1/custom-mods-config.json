@@ -1,0 +1,18 @@
+{
+    "globalAllowedMissingMods": [
+    ],
+    "globalAllowedExtraMods": [
+    ],
+    "allowedMissingModsPerPlayer": {
+        "Player810#24a37f0a-2af1-3ac4-9024-e5424f979e18": [
+        ]
+    },
+    "allowedExtraModsPerPlayer": {
+        "Player810#24a37f0a-2af1-3ac4-9024-e5424f979e18": [
+            {
+                "fileName": "blockmeter-1.10.1-HEAD.jar",
+                "fileHash": "bdcec6e65541c9272e200ddd30cef763ad6a6058a54e6f785fb5d175fb150153"
+            }
+        ]
+    }
+}

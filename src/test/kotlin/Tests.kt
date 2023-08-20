@@ -55,8 +55,8 @@ class Tests {
     @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun generateIntegrityDotJson() {
-        val modsFolderPath = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\mods")
-        val resourcepacksFolderPath = Paths.get("C:\\Users\\skyfy16\\curseforge\\minecraft\\Instances\\TestProfile_1.19.4\\resourcepacks")
+        val modsFolderPath = Paths.get("C:\\Users\\skyfy16\\AppData\\Roaming\\PrismLauncher\\instances\\1.20.1\\.minecraft\\mods")
+        val resourcepacksFolderPath = Paths.get("C:\\Users\\skyfy16\\AppData\\Roaming\\PrismLauncher\\instances\\1.20.1\\.minecraft\\resourcepacks")
 
 
         val integrityConfig = IntegrityConfig()
