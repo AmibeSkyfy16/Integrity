@@ -7,9 +7,9 @@ import net.fabricmc.loom.task.RemapJarTask
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
-    id("fabric-loom") version "1.3-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.8.22"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("fabric-loom") version "1.5-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.9.23"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     idea
 }
@@ -38,14 +38,14 @@ dependencies {
 
 
 //    transitiveInclude(implementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")!!)
-    shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")
+    shadow("ch.skyfy.jsonconfiglib:json-config-lib:3.0.16")
 //    transitiveInclude(implementation("com.google.guava:guava:31.1-jre")!!)
 //    transitiveInclude(implementation("com.github.goxr3plus:FX-BorderlessScene:4.4.0")!!)
 
 //    handleIncludes(project, transitiveInclude)
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
-    testImplementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.15")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.23")
+    testImplementation("ch.skyfy.jsonconfiglib:json-config-lib:3.0.16")
 }
 
 configurations.implementation.get().extendsFrom(configurations.shadow.get())
@@ -137,7 +137,7 @@ tasks {
     }
 
     named<Wrapper>("wrapper") {
-        gradleVersion = "8.2.1"
+        gradleVersion = "8.7"
         distributionType = Wrapper.DistributionType.BIN
     }
 
